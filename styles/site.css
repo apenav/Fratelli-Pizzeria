@@ -340,6 +340,60 @@ main:focus { outline: none; }
   font-weight: 600;
 }
 
+.menu__filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 0.75rem 1rem;
+  align-items: end;
+  margin: 0 0 1.5rem;
+  padding: 1rem;
+  background: var(--color-paper);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.menu__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.menu__field label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.menu__field input,
+.menu__field select {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-paper);
+  border: 1px solid var(--color-line);
+  border-radius: 0.5rem;
+}
+
+.menu__reset {
+  justify-self: start;
+}
+
+.menu__results {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+.menu__empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  background: var(--color-paper);
+  border: 1px dashed var(--color-line);
+  border-radius: var(--radius);
+}
+
 .category-nav {
   position: sticky;
   top: var(--header-height);

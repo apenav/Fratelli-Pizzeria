@@ -35,6 +35,20 @@
         <section id="menu" class="menu" aria-labelledby="menu-title">
           <h2 id="menu-title">Nuestra carta</h2>
           <p class="menu__status" data-menu-status role="status">Cargando la carta…</p>
+          <form class="menu__filters" data-menu-filters role="search" aria-label="Buscar y filtrar la carta" hidden>
+            <div class="menu__field">
+              <label for="menu-search">Buscar platos</label>
+              <input id="menu-search" type="search" data-menu-search placeholder="Nombre o descripción" autocomplete="off">
+            </div>
+            <div class="menu__field">
+              <label for="menu-category">Categoría</label>
+              <select id="menu-category" data-menu-category>
+                <option value="">Todas las categorías</option>
+              </select>
+            </div>
+            <button type="button" class="button button--ghost menu__reset" data-menu-filters-reset>Limpiar filtros</button>
+            <p class="menu__results" data-menu-results role="status" aria-live="polite" hidden></p>
+          </form>
           <nav class="category-nav" aria-label="Categorías de la carta" data-category-nav hidden></nav>
           <div data-menu-content></div>
         </section>
