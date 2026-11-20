@@ -2,7 +2,7 @@
 
 Repositorio con fines educativos, utilizado para hacer onboardings de tecnología SDD. Simula la web de la pizzeria Fratelli, para que puedan practicar los developers.
 
-La web es una página estática en español (HTML, CSS y módulos JavaScript, sin framework ni paso de compilación) que muestra la carta de comida de Pizzería Fratelli, el teléfono y la dirección, y un **pedido de demostración**: la cesta vive solo en memoria y al confirmar no se envía nada al restaurante, no se cobra y no se piden datos personales.
+La web es una página estática en español (HTML, CSS y módulos JavaScript, sin framework ni paso de compilación) que muestra la carta de comida de Pizzería Fratelli, permite buscar platos por nombre o descripción y filtrar por categoría, muestra el teléfono y la dirección, y ofrece un **pedido de demostración**: la cesta vive solo en memoria y al confirmar no se envía nada al restaurante, no se cobra y no se piden datos personales.
 
 ## Requisitos
 
@@ -18,11 +18,15 @@ npm run start
 
 Abre <http://127.0.0.1:3000>. El servidor (`serve`) escucha solo en `127.0.0.1:3000`, no cambia de puerto si está ocupado y no copia nada al portapapeles. Es una herramienta de desarrollo, **no** un servidor de producción.
 
+## Buscar y filtrar la carta
+
+La barra de la carta permite escribir texto (nombre o descripción, sin distinguir mayúsculas ni tildes), elegir una categoría y combinar ambos filtros. El contador indica cuántos platos se muestran y "Limpiar filtros" restaura la carta completa. No hay filtros dietéticos ni de alérgenos porque `data/menu.json` no contiene ese dato verificado.
+
 ## Tests
 
 ```sh
 npx playwright install chromium   # solo la primera vez
-npm run test:unit                 # Jest: lógica de cesta y validación de data/menu.json
+npm run test:unit                 # Jest: lógica de cesta, búsqueda y validación de data/menu.json
 npm run test:e2e                  # Playwright (Chromium): recorridos del cliente
 npm test                          # ambos
 ```
@@ -36,6 +40,7 @@ index.html             Estructura semántica de la página
 styles/site.css        Estilos (fuentes del sistema, sin recursos externos)
 scripts/app.js         Carga data/menu.json y gestiona la interfaz
 scripts/cart.js        Reglas de cesta y precios, sin DOM (probadas con Jest)
+scripts/menu-search.js Normalización y filtros de carta, sin DOM (probado con Jest)
 data/menu.json         Restaurante y carta de comida
 tests/unit/            Tests de Jest
 tests/e2e/             Tests de Playwright

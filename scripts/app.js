@@ -8,6 +8,7 @@ import {
   removeLine,
   setQuantity,
 } from './cart.js';
+import { filterProducts } from './menu-search.js';
 
 const MENU_URL = 'data/menu.json';
 
@@ -19,6 +20,7 @@ const state = {
   menu: { products: [] },
   productsById: new Map(),
   cart: createCart(),
+  filters: { query: '', categoryId: '' },
 };
 
 function h(tag, attributes = {}, ...children) {
@@ -108,10 +110,16 @@ function renderProduct(product) {
   );
 }
 
-function renderMenu(menu) {
-  const categories = [...menu.categories].sort((a, b) => a.order - b.order);
+function sortedCategories(menu) {
+  return [...menu.categories].sort((a, b) => a.order - b.order);
+}
+
+function renderMenu() {
+  const { menu, filters } = state;
+  const categories = sortedCategories(menu);
+  const visibleProducts = filterProducts(menu.products, filters);
   const productsByCategory = new Map();
-  for (const product of menu.products) {
+  for (const product of visibleProducts) {
     if (!productsByCategory.has(product.categoryId)) productsByCategory.set(product.categoryId, []);
     productsByCategory.get(product.categoryId).push(product);
   }
@@ -123,22 +131,64 @@ function renderMenu(menu) {
       h('a', { href: `#${categoryAnchor(category)}`, text: category.name }),
     )),
   ));
-  nav.hidden = false;
+  nav.hidden = visibleCategories.length === 0;
 
-  document.querySelector('[data-menu-content]').replaceChildren(
-    ...visibleCategories.map((category) => {
-      const headingId = `${categoryAnchor(category)}-title`;
-      return h('section', {
-        id: categoryAnchor(category),
-        className: 'menu-category',
-        'aria-labelledby': headingId,
-      },
-      h('h3', { id: headingId, text: category.name }),
-      h('ul', { className: 'product-grid' },
-        productsByCategory.get(category.id).map(renderProduct),
-      ));
-    }),
+  const content = document.querySelector('[data-menu-content]');
+  if (visibleProducts.length === 0) {
+    content.replaceChildren(h('div', { className: 'menu__empty' },
+      h('p', { text: 'No hay platos que coincidan con tu búsqueda o filtro.' }),
+    ));
+  } else {
+    content.replaceChildren(
+      ...visibleCategories.map((category) => {
+        const headingId = `${categoryAnchor(category)}-title`;
+        return h('section', {
+          id: categoryAnchor(category),
+          className: 'menu-category',
+          'aria-labelledby': headingId,
+        },
+        h('h3', { id: headingId, text: category.name }),
+        h('ul', { className: 'product-grid' },
+          productsByCategory.get(category.id).map(renderProduct),
+        ));
+      }),
+    );
+  }
+
+  const results = document.querySelector('[data-menu-results]');
+  results.textContent = pluralize(visibleProducts.length, 'plato encontrado', 'platos encontrados');
+  results.hidden = false;
+}
+
+function updateFilters(nextFilters) {
+  state.filters = { ...state.filters, ...nextFilters };
+  renderMenu();
+  const results = document.querySelector('[data-menu-results]');
+  announce(`${results.textContent} en la carta.`);
+}
+
+function resetFilters() {
+  const search = document.querySelector('[data-menu-search]');
+  const category = document.querySelector('[data-menu-category]');
+  search.value = '';
+  category.value = '';
+  updateFilters({ query: '', categoryId: '' });
+  search.focus();
+}
+
+function initFilters(menu) {
+  const form = document.querySelector('[data-menu-filters]');
+  const search = document.querySelector('[data-menu-search]');
+  const category = document.querySelector('[data-menu-category]');
+  category.replaceChildren(
+    h('option', { value: '', text: 'Todas las categorías' }),
+    ...sortedCategories(menu).map((item) => h('option', { value: item.id, text: item.name })),
   );
+  form.addEventListener('submit', (event) => event.preventDefault());
+  search.addEventListener('input', () => updateFilters({ query: search.value }));
+  category.addEventListener('change', () => updateFilters({ categoryId: category.value }));
+  document.querySelector('[data-menu-filters-reset]').addEventListener('click', resetFilters);
+  form.hidden = false;
 }
 
 function renderContact(restaurant) {
@@ -409,7 +459,8 @@ async function init() {
   state.productsById = new Map(data.menu.products.map((product) => [product.id, product]));
   renderRestaurant(data.restaurant);
   renderContact(data.restaurant);
-  renderMenu(data.menu);
+  initFilters(data.menu);
+  renderMenu();
   document.querySelector('[data-menu-status]').hidden = true;
 }
 
